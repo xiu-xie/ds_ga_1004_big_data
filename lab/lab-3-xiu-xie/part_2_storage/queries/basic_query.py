@@ -3,6 +3,13 @@
 '''Example python script to run benchmark on a query with a file path.
 Usage:
     $ spark-submit basic_query.py <file_path>
+    
+    spark-submit --py-files bench.py basic_query.py <your_data_file_path>
+    yarn logs -applicationId <your_application_id> -log_files stdout
+    
+    hdfs:/user/bm106/pub/people_small.csv
+    hdfs:/user/bm106/pub/people_medium.csv
+    hdfs:/user/bm106/pub/people_large.csv
 '''
 
 

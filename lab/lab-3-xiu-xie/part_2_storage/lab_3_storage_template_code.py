@@ -3,6 +3,13 @@
 '''Template script to connect to Active Spark Session
 Usage:
     $ spark-submit lab_3_storage_template_code.py <any arguments you wish to add>
+    yarn logs -applicationId <your_application_id> -log_files stdout
+
+    spark-submit --conf  spark.dynamicAllocation.enabled=true --conf spark.shuffle.service.enabled=false --conf spark.dynamicAllocation.shuffleTracking.enabled=true
+    spark-submit --py-files bench.py basic_query.py <your_data_file_path>
+    hdfs:/user/bm106/pub/people_small.csv
+    hdfs:/user/bm106/pub/people_medium.csv
+    hdfs:/user/bm106/pub/people_large.csv
 '''
 
 
@@ -25,7 +32,40 @@ def main(spark):
 
     #Use this template to as much as you want for your parquet saving and optimizations!
 
+    ##### translate dataframes into parquet #####
+    
+    # read small
+    # people_small = spark.read.csv('hdfs:/user/bm106/pub/people_small.csv', header=True, 
+    #                         schema='first_name STRING, last_name STRING, income FLOAT, zipcode INT')
+    # people_small.write.parquet('hdfs:/user/xx2179/people_small.parquet')
 
+    # read medium
+    # people_medium = spark.read.csv('hdfs:/user/bm106/pub/people_medium.csv', header=True, 
+    #                         schema='first_name STRING, last_name STRING, income FLOAT, zipcode INT')
+    # people_medium.write.parquet('hdfs:/user/xx2179/people_medium.parquet')
+
+    # read large
+    #people_large = spark.read.csv('hdfs:/user/bm106/pub/people_large.csv', header=True, 
+    #                       schema='first_name STRING, last_name STRING, income FLOAT, zipcode INT')
+    #people_large.write.parquet('hdfs:/user/xx2179/people_large.parquet')
+    
+    people = spark.read.csv('hdfs:/user/bm106/pub/people_small.csv', header=True,
+                            schema='first_name STRING, last_name STRING, income FLOAT, zipcode INT')
+    people.createOrReplaceTempView('people')
+
+    ##### OPTIMIZATION 1: SORT #####
+    #people_sorted = people.orderBy('zipcode', 'income')
+    #people_sorted.write.parquet('hdfs:/user/xx2179/people_sorted.parquet')
+
+
+    ##### OPTIMIZATION 2: REPARTITION #####
+    #people_repartition = people.repartition(10, 'zipcode')
+    #people_repartition.write.parquet('hdfs:/user/xx2179/people_repartition.parquet')
+
+
+    ##### OPTIMIZATION 3: SORT 2 #####
+    people_sorted2 = people.orderBy('income', ascending = False)
+    people_sorted2.write.parquet('hdfs:/user/xx2179/people_sorted2.parquet')
 
 
 # Only enter this block if we're in main
